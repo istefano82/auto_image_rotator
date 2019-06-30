@@ -5,26 +5,14 @@
 {% endblock %}
 
 {% block content %}
+<!--TODO Enable user registration and authentication for batch upload-->
+{# {% if current_user.is_authenticated %} #}
+<center><h2><font color='white'>Upload your image below</font></h2></center>
 
-{% if current_user.is_authenticated %}
-
-
-
-	  <form action="/user/charge" method="post">
-    <article>
-      <label>
-      </label>
-    </article>
-
-    <script src="https://checkout.stripe.com/checkout.js" class="stripe-button"
-
-            data-key="pk_test_TQmy1LFbeJ6tgZLOdzT4pZRh00mJ3yq97c"
-            data-description="A Flask Charge"
-            data-amount="1000"
-	    data-email="{{ email }}"
-            data-locale="auto"></script>
-  </form>
-
-  	{% endif %}
-
+  <form action = "http://localhost:5000/uploaded" method = "POST"
+         enctype = "multipart/form-data">
+         <input type = "file" name = "file" />
+         <input type = "submit"/>
+      </form>
+{# {% endif %} #}
 {% endblock %}

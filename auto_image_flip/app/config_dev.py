@@ -1,4 +1,5 @@
 import logging
+from pathlib import PurePath, Path
 
 from app.config_common import *
 
@@ -33,5 +34,5 @@ LOG_FILENAME = 'activity.log'
 LOG_MAXBYTES = 1024
 LOG_BACKUPS = 2
 
-
-UPLOAD_FOLDER = '/home/ivo-pc/Projects/AI_Startup_Prototype/auto_image_flip/app/static/uploads'
+UPLOAD_FOLDER = PurePath(Path(__file__).resolve().parent, 'static/uploads')
+MODEL_WEIGHTS = PurePath(Path(__file__).resolve().parent, 'static/saved_model/image_rotate_weights.h5')

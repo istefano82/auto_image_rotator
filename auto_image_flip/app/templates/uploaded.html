@@ -6,57 +6,36 @@
 
 {% block content %}
 
-<!DOCTYPE html>
 <html>
-<head>
-	<body>
-	<img src="../static/uploads/{{img_name}}" alt="Rotated Image" class="center">
+	<div>
+		<hr>
+		<img src="../static/uploads/{{img_name}}" alt="Rotated Image" class="center">
+	</div>
+	<div>
 
-					<!-- {{ predictions }} -->
-					<style>
-table {
-  font-family: arial, sans-serif;
-  border-collapse: collapse;
-  width: 100%;
+	<h1><a href="./static/uploads/{{img_name}}" download="{{ file_name }}">
+		Download</a></h1>
+	</div>
+</html>
+<script>
+function download(file)
+{
+ window.location=file;
+}
+</script>
+
+<style>
+a:link, a:visited {
+  background-color: #03a9f4;
+  color: white;
+  padding: 14px 25px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
 }
 
-td, th {
-  border: 1px solid #dddddd;
-  text-align: left;
-  padding: 8px;
-}
-
-tr:nth-child(even) {
-  background-color: #dddddd;
+a:hover, a:active {
+  background-color: red;
 }
 </style>
-</head>
-<body>
-
-<h2>Results</h2>
-
-<table>
-  <tr>
-    <th>Disease</th>
-    <th>Percent Likelihood</th>
-  </tr>
-  <tr>
-    <td>Pneumonia</td>
-    <td>98%</td>
-  </tr>
-  <tr>
-    <td>Fibrosis</td>
-    <td>43%</td>
-  </tr>
-</table>
-
-</body>
-</html>
-    <title>Index</title>
-</head>
-<body>
-</body>
-</html>
-
-
 {% endblock %}

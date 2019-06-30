@@ -1,12 +1,15 @@
 import os
 import random
 from PIL import Image
-
 import numpy as np
 from app import app
-from flask import render_template, jsonify, request
-from keras.applications.resnet50 import preprocess_input
+from flask import render_template, jsonify, request, send_from_directory
+
+from keras.applications.mobilenet import preprocess_input
 from keras.preprocessing import image
+
+PREDICTION_CLASSES = {0: 'left', 1: 'right', 2: 'upright', 3: 'upsidedown'}
+
 
 def _rotate_image(img_path, img_direction):
     '''Rotates image upright based on it current direction.'''
@@ -30,21 +33,29 @@ def upload_file():
         path = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
         f.save(path)
         img = image.load_img(path, target_size=(224, 224))
-        x = image.img_to_array(img)
-        x = np.expand_dims(x, axis=0)
-        x = preprocess_input(x)
+        processed_image = image.img_to_array(img)
+        processed_image = np.expand_dims(processed_image, axis=0)
+        processed_image = preprocess_input(processed_image)
         with graph.as_default():
-            preds_class = model.predict_classes(x)[0]
-        print(preds_class)
-        pred_classes = ['right', 'upright', 'left', 'upsidedown']
-        _rotate_image(path, pred_classes[preds_class])
+            y_proba = model.predict(processed_image)
+            preds_class = y_proba.argmax(axis=-1)[0]
+        _rotate_image(path, PREDICTION_CLASSES[preds_class])
         img_name = os.path.split(path)[1]
         return render_template('uploaded.html', img_name=img_name)
+
+
+@app.route('/download_image', methods=['GET', 'POST'])
+def download_file():
+    if request.method == 'POST':
+        return send_from_directory(app.config['UPLOAD_FOLDER'],
+                                   filename, as_attachment=True)
+
 
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('user/charge.html', title='Home')
+    # return render_template('user/charge.html', title='Home')
+    return render_template('index.html')
 
 
 @app.route('/map')
