@@ -1,4 +1,4 @@
-Dockerfile# Copyright 2018 Google LLC
+# Copyright 2018 Google LLC
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -34,7 +34,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Install TF Serving pkg
 COPY --from=build_image /usr/local/bin/tensorflow_model_server /usr/bin/tensorflow_model_server
 
-# Expose is NOT supported by Heroku
+# Expose is NOT supported by Heroku0
 
 # Expose ports
 # gRPC
@@ -48,9 +48,9 @@ ENV MODEL_BASE_PATH=/models
 RUN mkdir -p ${MODEL_BASE_PATH}
 WORKDIR  ${MODEL_BASE_PATH}
 # The only required piece is the model name in order to differentiate endpoints
-ENV MODEL_NAME=tf_serving_keras_mobilenetv2
+ENV MODEL_NAME=tf_serving_keras_mobilenet
 
-COPY models/export/tf_serving_keras_mobilenetv2 tf_serving_keras_mobilenetv2
+COPY models/export/tf_serving_keras_mobilenet tf_serving_keras_mobilenet
 
 # Create a script that runs the model server so we can use environment variables
 # while also passing in arguments from the docker command line

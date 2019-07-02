@@ -91,3 +91,8 @@ Read [this](http://flask.pocoo.org/docs/0.10/config/) for information on the pos
 ## License
 
 The MIT License (MIT). Please see the [license file](LICENSE) for more information.
+
+# Model docker container deploy via TF serving and heroku
+https://hackernoon.com/tf-serving-keras-mobilenetv2-c167b4b2bb25
+- Heroki model app name: image-rotation-detector
+ 

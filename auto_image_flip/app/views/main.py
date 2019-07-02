@@ -1,14 +1,29 @@
+import json
 import os
 import random
-from PIL import Image
+
 import numpy as np
+import requests
+from PIL import Image
 from app import app
-from flask import render_template, jsonify, request, send_from_directory
+from flask import render_template, jsonify, request
+from skimage.transform import resize
 
-from keras.applications.mobilenet import preprocess_input
-from keras.preprocessing import image
+PREDICTION_LABELS = {0: 'left', 1: 'right', 2: 'upright', 3: 'upsidedown'}
+TARGET_IMAGE_SIZE = 224
 
-PREDICTION_CLASSES = {0: 'left', 1: 'right', 2: 'upright', 3: 'upsidedown'}
+
+def preprocess_image(x):
+    x = resize(x, (TARGET_IMAGE_SIZE, TARGET_IMAGE_SIZE),
+               mode='constant',
+               anti_aliasing=False)
+
+    # convert to 3 channel (RGB)
+    x = np.stack((x,) * 3, axis=-1)
+
+    # Make sure it is a float32, here is why
+    # https://www.quora.com/When-should-I-use-tf-float32-vs-tf-float64-in-TensorFlow
+    return x.astype(np.float32)
 
 
 def _rotate_image(img_path, img_direction):
@@ -19,6 +34,7 @@ def _rotate_image(img_path, img_direction):
     out = img.rotate(angle, expand=True)
     out.save(img_path)
 
+
 @app.route('/upload')
 def upload_file2():
     return render_template('index.html')
@@ -27,28 +43,27 @@ def upload_file2():
 @app.route('/uploaded', methods=['GET', 'POST'])
 def upload_file():
     if request.method == 'POST':
-        model = app.model
-        graph = app.graph
         f = request.files['file']
         path = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
         f.save(path)
-        img = image.load_img(path, target_size=(224, 224))
-        processed_image = image.img_to_array(img)
-        processed_image = np.expand_dims(processed_image, axis=0)
-        processed_image = preprocess_input(processed_image)
-        with graph.as_default():
-            y_proba = model.predict(processed_image)
-            preds_class = y_proba.argmax(axis=-1)[0]
-        _rotate_image(path, PREDICTION_CLASSES[preds_class])
+        image = Image.open(path).convert('L')
+        image.thumbnail((TARGET_IMAGE_SIZE, TARGET_IMAGE_SIZE))
+        image = preprocess_image(np.array(image))
+        # setup the request
+        url = app.config['HEROKU_MODEL_APP_URL']
+        full_url = f"{url}/v1/models/tf_serving_keras_mobilenet/versions/1:predict"
+
+        data = {"signature_name": "prediction",
+                "instances": [{"images": image.tolist()}]}
+        data = json.dumps(data)
+
+        response = requests.post(full_url, data=data)
+        response = response.json()
+        highest_index = np.argmax(response['predictions'])
+        print(PREDICTION_LABELS[highest_index])
+        _rotate_image(path, PREDICTION_LABELS[highest_index])
         img_name = os.path.split(path)[1]
         return render_template('uploaded.html', img_name=img_name)
-
-
-@app.route('/download_image', methods=['GET', 'POST'])
-def download_file():
-    if request.method == 'POST':
-        return send_from_directory(app.config['UPLOAD_FOLDER'],
-                                   filename, as_attachment=True)
 
 
 @app.route('/')

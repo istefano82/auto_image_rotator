@@ -36,3 +36,4 @@ LOG_BACKUPS = 2
 
 UPLOAD_FOLDER = PurePath(Path(__file__).resolve().parent, 'static/uploads')
 MODEL_WEIGHTS = PurePath(Path(__file__).resolve().parent, 'static/saved_model/image_rotate_weights.h5')
+HEROKU_MODEL_APP_URL = 'https://image-rotation-detector.herokuapp.com'
