@@ -51,8 +51,7 @@ def upload_file():
         image = preprocess_image(np.array(image))
         # setup the request
         url = app.config['HEROKU_MODEL_APP_URL']
-        full_url = "{}/v1/models/tf_serving_keras_mobilenet/versions/1" \
-                   ":predict".format(url)
+        full_url = "{}/v1/models/tf_serving_keras_mobilenet/versions/1:predict".format(url)
 
         data = {"signature_name": "prediction",
                 "instances": [{"images": image.tolist()}]}

@@ -1,1 +1,1 @@
-web: gunicorn app:image-flip
+web: cd app && ln -sf config_prod.py config.py; gunicorn app:app
