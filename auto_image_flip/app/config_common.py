@@ -1,3 +1,5 @@
+from pathlib import PurePath, Path
+
 TIMEZONE = 'Europe/Paris'
 
 # Secret key for generating tokens
@@ -21,3 +23,8 @@ ADMINS = ['flask.boilerplate@gmail.com']
 
 # Number of times a password is hashed
 BCRYPT_LOG_ROUNDS = 12
+
+UPLOAD_FOLDER = PurePath(Path(__file__).resolve().parent, 'static/uploads')
+MODEL_WEIGHTS = PurePath(Path(__file__).resolve().parent, 'static/saved_model/image_rotate_weights.h5')
+HEROKU_MODEL_APP_URL = 'https://image-rotation-detector.herokuapp.com'
+ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
