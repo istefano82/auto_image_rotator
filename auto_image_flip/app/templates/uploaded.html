@@ -7,22 +7,31 @@
 {% block content %}
 
 <html>
-	<div>
-		<hr>
-		<img src="../static/uploads/{{img_name}}" alt="Rotated Image" class="center">
-	</div>
-	<div>
+    <div>
+      <h2>This is a list of the files you just uploaded, click on them to
+		  Rotate.<br/>
+		  Click Download button to download all of them.
+	  </h2>
 
-	<h1><a href="./static/uploads/{{img_name}}" download="{{ file_name }}"><i
+      <ul>
+        {% for image in images %}
+          <li>
+			  <a href="./static/uploads/{{image}}" download="{{ file_name }}"><i
+			class="fa fa-download"></i>
+				  <img src="../static/uploads/{{image}}"
+					   style="width:42px;height:42px;border:0;">
+			  </a>
+		  </li>
+        {% endfor %}
+      </ul>
+	</div>
+	<h1><a href="{{ url_for('download_files') }} "><i
 			class="fa fa-download"></i>
 		Download</a></h1>
 	</div>
 </html>
 <script>
-function download(file)
-{
- window.location=file;
-}
+
 </script>
 
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
