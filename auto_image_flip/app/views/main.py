@@ -2,18 +2,23 @@ import json
 import os
 import random
 import zipfile
+from collections import defaultdict
 
 import numpy as np
 import requests
 from PIL import Image
 from app import app
-from flask import render_template, jsonify, request, session, send_file
+from flask import render_template, jsonify, request, send_file, \
+    Response, redirect, url_for
 from skimage.transform import resize
 from werkzeug import secure_filename
 
 PREDICTION_LABELS = {0: 'left', 1: 'right', 2: 'upright', 3: 'upsidedown'}
+CLOCKWISE_2_COUNTER_CLOCKWISE = {0: 0, 180: 180, 270: 90,
+                                 90: 270}
 TARGET_IMAGE_SIZE = 224
 
+IMAGE_FLIPS = defaultdict(int)
 
 def preprocess_image(x):
     # @TODO Find a better way to preprocess images before sending to model
@@ -29,13 +34,27 @@ def preprocess_image(x):
     # https://www.quora.com/When-should-I-use-tf-float32-vs-tf-float64-in-TensorFlow
     return x.astype(np.float32)
 
+@app.route('/rotate_image', methods=['POST'])
+def rotate_image_api():
+    '''Rotates image by specified angle'''
+    img_name, angle = json.loads(request.data).popitem()
+    IMAGE_FLIPS[img_name] = angle
+    return Response(status=200)
 
-def _rotate_image(img_path, img_direction):
+
+def _rotate_image_from_label(img_path, img_direction):
     '''Rotates image upright based on it current direction.'''
     img = Image.open(img_path)
     transform_map = {'right': 90, 'upright': 0, 'left': 270, 'upsidedown': 180}
     angle = transform_map[img_direction]
     out = img.rotate(angle, expand=True)
+    out.save(img_path)
+
+
+def _rotate_image_from_angle(img_path, img_angle):
+    '''Rotates image upright based on it current direction.'''
+    img = Image.open(img_path)
+    out = img.rotate(img_angle, expand=True)
     out.save(img_path)
 
 
@@ -48,16 +67,14 @@ def allowed_file(filename):
 @app.route('/upload-files', methods=['POST'])
 def upload_files():
     uploaded_files = request.files.getlist("file[]")
-    filenames = []
     for file in uploaded_files:
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(path)
             predict_rotate(path)
-            filenames.append(filename)
-    session['filenames'] = filenames
-    return render_template('uploaded.html', images=filenames)
+            IMAGE_FLIPS[filename]
+    return render_template('uploaded.html', images=IMAGE_FLIPS.keys())
 
 
 @app.route('/uploaded', methods=['GET', 'POST'])
@@ -90,13 +107,20 @@ def predict_rotate(path):
     response = requests.post(full_url, data=data)
     response = response.json()
     highest_index = np.argmax(response['predictions'])
-    _rotate_image(path, PREDICTION_LABELS[highest_index])
+    _rotate_image_from_label(path, PREDICTION_LABELS[highest_index])
 
 
 @app.route('/download_files/')
 def download_files():
+    for image, angle in IMAGE_FLIPS.items():
+        img_path = os.path.join(app.config['UPLOAD_FOLDER'], image)
+        # Images are rotated clockwise by the angle in javascript
+        # But pillow rotates the images counterclockwise
+        # hence the need for angle conversion
+        counter_clockwise_angle = CLOCKWISE_2_COUNTER_CLOCKWISE[angle]
+        _rotate_image_from_angle(img_path, counter_clockwise_angle)
     archive_path = '/tmp/flipped_images.zip'
-    converted_images = session['filenames']
+    converted_images = IMAGE_FLIPS.keys()
     zipf = zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED)
     for file in converted_images:
         zipf.write(str(app.config['UPLOAD_FOLDER']) + '/' + file, file)
