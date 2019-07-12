@@ -9,7 +9,7 @@ import requests
 from PIL import Image
 from app import app
 from flask import render_template, jsonify, request, send_file, \
-    Response, redirect, url_for
+    Response, redirect, url_for, session
 from skimage.transform import resize
 from werkzeug import secure_filename
 
@@ -18,7 +18,7 @@ CLOCKWISE_2_COUNTER_CLOCKWISE = {0: 0, 180: 180, 270: 90,
                                  90: 270}
 TARGET_IMAGE_SIZE = 224
 
-IMAGE_FLIPS = defaultdict(int)
+image_flips = defaultdict(int)
 
 def preprocess_image(x):
     # @TODO Find a better way to preprocess images before sending to model
@@ -38,7 +38,7 @@ def preprocess_image(x):
 def rotate_image_api():
     '''Rotates image by specified angle'''
     img_name, angle = json.loads(request.data).popitem()
-    IMAGE_FLIPS[img_name] = angle
+    image_flips[img_name] = angle
     return Response(status=200)
 
 
@@ -73,8 +73,9 @@ def upload_files():
             path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(path)
             predict_rotate(path)
-            IMAGE_FLIPS[filename]
-    return render_template('uploaded.html', images=IMAGE_FLIPS.keys())
+            print(f"image_flips  are {image_flips}")
+            image_flips[filename]
+    return render_template('uploaded.html', images=image_flips.keys())
 
 
 @app.route('/uploaded', methods=['GET', 'POST'])
@@ -112,7 +113,8 @@ def predict_rotate(path):
 
 @app.route('/download_files/')
 def download_files():
-    for image, angle in IMAGE_FLIPS.items():
+    session.modified = True
+    for image, angle in image_flips.items():
         img_path = os.path.join(app.config['UPLOAD_FOLDER'], image)
         # Images are rotated clockwise by the angle in javascript
         # But pillow rotates the images counterclockwise
@@ -120,11 +122,11 @@ def download_files():
         counter_clockwise_angle = CLOCKWISE_2_COUNTER_CLOCKWISE[angle]
         _rotate_image_from_angle(img_path, counter_clockwise_angle)
     archive_path = '/tmp/flipped_images.zip'
-    converted_images = IMAGE_FLIPS.keys()
+    converted_images = image_flips.keys()
     zipf = zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED)
     for file in converted_images:
         zipf.write(str(app.config['UPLOAD_FOLDER']) + '/' + file, file)
-    zipf.close()
+    image_flips.clear()
     return send_file(archive_path,
                      mimetype='zip',
                      attachment_filename='flipped_images.zip',
