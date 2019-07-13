@@ -16,7 +16,7 @@
 <!--TODO Enable user registration and authentication for batch upload-->
 {# {% if current_user.is_authenticated %} #}
     <hr>
-  <form action = {{ class="ui form" id="imageUploadForm" url_for('upload_files') }}
+  <form class="ui form" id="imageUploadForm" action = {{ url_for('upload_files') }}
 method = "POST"
          enctype = "multipart/form-data">
       <input type="file" multiple="" (change)="fileEvent($event)"
@@ -34,8 +34,7 @@ method = "POST"
   </form>
   <div class="ui disabled active dimmer" id="activeDimmer" >
     <div class="ui disabled large indeterminate text loader" id="loader"
-    >Flipping
-        your images</div>
+    >Flipping your images</div>
   <p></p>
 </div>
   <div class="ui tiny images" id="selectedFiles"></div>

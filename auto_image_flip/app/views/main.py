@@ -120,11 +120,12 @@ def download_files():
         # hence the need for angle conversion
         counter_clockwise_angle = CLOCKWISE_2_COUNTER_CLOCKWISE[angle]
         _rotate_image_from_angle(img_path, counter_clockwise_angle)
-    archive_path = '/tmp/flipped_images.zip'
+    archive_name = 'flipped_images.zip'
+    archive_path = os.path.join('/tmp', archive_name)
     converted_images = image_flips.keys()
-    zipf = zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED)
-    for file in converted_images:
-        zipf.write(str(app.config['UPLOAD_FOLDER']) + '/' + file, file)
+    with zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+        for file in converted_images:
+            zipf.write(str(app.config['UPLOAD_FOLDER']) + '/' + file, file)
     image_flips.clear()
     return send_file(archive_path,
                      mimetype='zip',
