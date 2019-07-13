@@ -3,6 +3,8 @@ import os
 import random
 import zipfile
 from collections import defaultdict
+import uuid
+
 
 import numpy as np
 import requests
@@ -110,9 +112,8 @@ def predict_rotate(path):
     _rotate_image_from_label(path, PREDICTION_LABELS[highest_index])
 
 
-@app.route('/download_files/')
+@app.route('/download_files/',  methods=['GET'])
 def download_files():
-    session.modified = True
     for image, angle in image_flips.items():
         img_path = os.path.join(app.config['UPLOAD_FOLDER'], image)
         # Images are rotated clockwise by the angle in javascript
@@ -120,7 +121,7 @@ def download_files():
         # hence the need for angle conversion
         counter_clockwise_angle = CLOCKWISE_2_COUNTER_CLOCKWISE[angle]
         _rotate_image_from_angle(img_path, counter_clockwise_angle)
-    archive_name = 'flipped_images.zip'
+    archive_name = str(uuid.uuid4())
     archive_path = os.path.join('/tmp', archive_name)
     converted_images = image_flips.keys()
     with zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
@@ -128,6 +129,7 @@ def download_files():
             zipf.write(str(app.config['UPLOAD_FOLDER']) + '/' + file, file)
     image_flips.clear()
     return send_file(archive_path,
+                     cache_timeout=1,
                      mimetype='zip',
                      attachment_filename='flipped_images.zip',
                      as_attachment=True)
