@@ -73,7 +73,6 @@ def upload_files():
             path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(path)
             predict_rotate(path)
-            print(f"image_flips  are {image_flips}")
             image_flips[filename]
     return render_template('uploaded.html', images=image_flips.keys())
 
