@@ -20,7 +20,6 @@ CLOCKWISE_2_COUNTER_CLOCKWISE = {0: 0, 180: 180, 270: 90,
                                  90: 270}
 TARGET_IMAGE_SIZE = 224
 
-image_flips = defaultdict(int)
 
 def preprocess_image(x):
     # @TODO Find a better way to preprocess images before sending to model
@@ -40,7 +39,7 @@ def preprocess_image(x):
 def rotate_image_api():
     '''Rotates image by specified angle'''
     img_name, angle = json.loads(request.data).popitem()
-    image_flips[img_name] = angle
+    session['image_flips'][img_name] = angle
     return Response(status=200)
 
 
@@ -68,6 +67,7 @@ def allowed_file(filename):
 
 @app.route('/upload-files', methods=['POST'])
 def upload_files():
+    session['image_flips'] = defaultdict(int)
     uploaded_files = request.files.getlist("file[]")
     for file in uploaded_files:
         if file and allowed_file(file.filename):
@@ -75,8 +75,8 @@ def upload_files():
             path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             file.save(path)
             predict_rotate(path)
-            image_flips[filename]
-    return render_template('uploaded.html', images=image_flips.keys())
+            session['image_flips'][filename]
+    return render_template('uploaded.html', images=session['image_flips'].keys())
 
 
 @app.route('/uploaded', methods=['GET', 'POST'])
@@ -114,7 +114,7 @@ def predict_rotate(path):
 
 @app.route('/download_files/',  methods=['GET'])
 def download_files():
-    for image, angle in image_flips.items():
+    for image, angle in session['image_flips'].items():
         img_path = os.path.join(app.config['UPLOAD_FOLDER'], image)
         # Images are rotated clockwise by the angle in javascript
         # But pillow rotates the images counterclockwise
@@ -123,11 +123,11 @@ def download_files():
         _rotate_image_from_angle(img_path, counter_clockwise_angle)
     archive_name = str(uuid.uuid4())
     archive_path = os.path.join('/tmp', archive_name)
-    converted_images = image_flips.keys()
+    converted_images = session['image_flips'].keys()
     with zipfile.ZipFile(archive_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
         for file in converted_images:
             zipf.write(str(app.config['UPLOAD_FOLDER']) + '/' + file, file)
-    image_flips.clear()
+    session['image_flips'].clear()
     return send_file(archive_path,
                      cache_timeout=1,
                      mimetype='zip',
@@ -138,8 +138,8 @@ def download_files():
 @app.route('/')
 @app.route('/index')
 def index():
-    # return render_template('user/charge.html', title='Home')
-    return render_template('index.html')
+    return render_template('user/charge.html', title='Home')
+    # return render_template('index.html')
 
 
 @app.route('/map')
