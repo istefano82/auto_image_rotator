@@ -10,7 +10,7 @@ DEBUG = True
 SECRET_KEY = 'houdini'
 
 # Admin credentials
-ADMIN_CREDENTIALS = ('admin', 'pa$$word')
+ADMIN_CREDENTIALS = ('admin', 'admin')
 
 # Database choice
 SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
