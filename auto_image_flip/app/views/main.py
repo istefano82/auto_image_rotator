@@ -79,15 +79,16 @@ def upload_files():
     return render_template('uploaded.html', images=session['image_flips'].keys())
 
 
-@app.route('/uploaded', methods=['GET', 'POST'])
+@app.route('/uploaded', methods=['POST'])
 def upload_file():
-    if request.method == 'POST':
-        f = request.files['file']
-        path = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
-        f.save(path)
-        predict_rotate(path)
-        img_name = os.path.split(path)[1]
-        return render_template('uploaded.html', img_name=img_name)
+    session['image_flips'] = defaultdict(int)
+    f = request.files['file']
+    path = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
+    f.save(path)
+    predict_rotate(path)
+    img_name = os.path.split(path)[1]
+    session['image_flips'][img_name]
+    return render_template('uploaded.html', images=[img_name])
 
 
 def predict_rotate(path):
@@ -138,8 +139,8 @@ def download_files():
 @app.route('/')
 @app.route('/index')
 def index():
-    return render_template('user/charge.html', title='Home')
-    # return render_template('index.html')
+    # return render_template('user/charge.html', title='Home')
+    return render_template('index.html')
 
 
 @app.route('/map')

@@ -8,13 +8,7 @@
 
 <center><h2><font color='white'>Upload your image below</font></h2></center>
 
-<!--  <form class="ui form" action = {{ url_for('upload_file') }} method = "POST"-->
-<!--         enctype = "multipart/form-data">-->
-<!--         <input type = "file" name = "file" />-->
-<!--         <input type = "submit"/>-->
-<!--      </form>-->
-<!--TODO Enable user registration and authentication for batch upload-->
-{# {% if current_user.is_authenticated %} #}
+{% if current_user.is_authenticated %}
     <hr>
   <form class="ui form" id="imageUploadForm" action = {{ url_for('upload_files') }}
 method = "POST"
@@ -38,7 +32,29 @@ method = "POST"
   <p></p>
 </div>
   <div class="ui tiny images" id="selectedFiles"></div>
-{# {% endif %} #}
+{% else %}
+  <form class="ui form" id="imageUploadForm"  action = {{ url_for('upload_file') }} method = "POST"
+         enctype = "multipart/form-data">
+      <input type="file" multiple="" (change)="fileEvent($event)"
+         class="inputfile" id="embedpollfileinput" name="file"/>
+      <label for="embedpollfileinput"
+             class="ui huge teal center floated button">
+          <i class="ui upload icon"></i>
+        Upload images
+      </label>
+      <input type="submit" class="inputfile" id="submitfiles"
+             name="submitfiles"/>
+      <label for="submitfiles" class="ui huge blue center floated button">
+        Submit
+      </label>
+  </form>
+  <div class="ui disabled active dimmer" id="activeDimmer" >
+    <div class="ui disabled large indeterminate text loader" id="loader"
+    >Flipping your images</div>
+  <p></p>
+</div>
+  <div class="ui tiny images" id="selectedFiles"></div>
+{% endif %}
 
 <script>
 	var selDiv = "";
