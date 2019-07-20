@@ -6,9 +6,11 @@
 
 {% block content %}
 
-<center><h2><font color='white'>Upload your image below</font></h2></center>
+
 
 {% if current_user.is_authenticated %}
+<center><h2><font color='white'>You've logged in! Upload your images
+    below</font></h2></center>
     <hr>
   <form class="ui form" id="imageUploadForm" action = {{ url_for('upload_files') }}
 method = "POST"
@@ -33,6 +35,9 @@ method = "POST"
 </div>
   <div class="ui tiny images" id="selectedFiles"></div>
 {% else %}
+  <center><h2><font color='white'>Log in to be able to upload mutiple
+      images for rotation conversion.</font></h2></center>
+  <center><h2><font color='white'>Upload your single image below</font></h2></center>
   <form class="ui form" id="imageUploadForm"  action = {{ url_for('upload_file') }} method = "POST"
          enctype = "multipart/form-data">
       <input type="file" multiple="" (change)="fileEvent($event)"
@@ -40,7 +45,7 @@ method = "POST"
       <label for="embedpollfileinput"
              class="ui huge teal center floated button">
           <i class="ui upload icon"></i>
-        Upload images
+        Upload image
       </label>
       <input type="submit" class="inputfile" id="submitfiles"
              name="submitfiles"/>

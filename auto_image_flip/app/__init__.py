@@ -11,6 +11,11 @@ app = Flask(__name__)
 
 # Setup the app with the config.py file
 app.config.from_object('app.config')
+try:
+    app.config.from_envvar('IMAGE_FLIP_SETTINGS')
+except RuntimeError as err:
+    print(str(err))
+
 
 # Setup Image deep learning model to run locally within the flask app.
 # @app.before_first_request
@@ -85,5 +90,6 @@ def load_user(email):
     return User.query.filter(User.email == email).first()
 
 from app import admin
+
 
 
