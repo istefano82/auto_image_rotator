@@ -67,6 +67,9 @@ I did what most people recommend for the application's structure. Basically, eve
 ### Vanilla
 
 - Install the requirements and setup the development environment.
+    `cd /home/ivo/Projects/auto_image_rotator/auto_image_flip`
+    
+    `export IMAGE_FLIP_SETTINGS=../settings.cfg`
 
 	`make install && make dev`
 
@@ -123,4 +126,5 @@ The MIT License (MIT). Please see the [license file](LICENSE) for more informati
 # Model docker container deploy via TF serving and heroku
 https://hackernoon.com/tf-serving-keras-mobilenetv2-c167b4b2bb25
 - Heroki model app name: image-rotation-detector
+ 
  
