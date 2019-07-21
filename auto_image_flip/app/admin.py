@@ -13,6 +13,8 @@ from app.models import User
 admin = Admin(app, name='Admin', template_mode='bootstrap3')
 
 class ModelView(ModelView):
+    column_list = ('email', 'first_name', 'last_name', 'confirmation',
+                   'password')
 
     def is_accessible(self):
         auth = request.authorization or request.environ.get('REMOTE_USER')  # workaround for Apache
