@@ -1,4 +1,7 @@
 from flask import Flask
+from dotenv import load_dotenv
+import os
+
 import tensorflow as tf
 
 from keras.layers import Dense,GlobalAveragePooling2D, Dropout
@@ -9,12 +12,13 @@ import tensorflow
 
 app = Flask(__name__)
 
+# Use .env to setup enviroment variables
+APP_ROOT = os.path.join(os.path.dirname(__file__), '..')   # refers to application_top
+dotenv_path = os.path.join(APP_ROOT, '.env')
+load_dotenv(dotenv_path)
+
 # Setup the app with the config.py file
 app.config.from_object('app.config')
-try:
-    app.config.from_envvar('IMAGE_FLIP_SETTINGS')
-except RuntimeError as err:
-    print(str(err))
 
 
 # Setup Image deep learning model to run locally within the flask app.

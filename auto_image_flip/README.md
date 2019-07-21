@@ -59,6 +59,9 @@ I did what most people recommend for the application's structure. Basically, eve
 
 ### Vanilla
 
+- Create .env file in the app root directory with the variables needed in the
+ config_common.py
+
 - Install the requirements and setup the development environment.
 
 	`make install && make dev`
