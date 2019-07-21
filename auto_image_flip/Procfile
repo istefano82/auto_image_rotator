@@ -1,1 +1,1 @@
-web: cd app && ln -sf config_prod.py config.py; gunicorn app:app
+web: cd app && ln -sf config_prod.py config.py;python ../manage.py initdb; gunicorn app:app
