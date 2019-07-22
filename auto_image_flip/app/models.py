@@ -12,7 +12,6 @@ class User(db.Model, UserMixin):
 
     first_name = db.Column(db.String)
     last_name = db.Column(db.String)
-    phone = db.Column(db.String)
     email = db.Column(db.String, primary_key=True)
     confirmation = db.Column(db.Boolean)
     paid = db.Column(db.Boolean)

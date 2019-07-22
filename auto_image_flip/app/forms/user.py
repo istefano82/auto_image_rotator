@@ -64,8 +64,6 @@ class SignUp(Form):
                      description='Name')
     last_name = TextField(validators=[Required(), Length(min=2)],
                         description='Surname')
-    phone = TextField(validators=[Required(), Length(min=6)],
-                      description='Phone number')
     email = TextField(validators=[Required(), Email(),
                                   Unique(User, User.email,
                                          'This email address is ' +

@@ -32,7 +32,6 @@ def signup():
         user = models.User(
             first_name=form.first_name.data,
             last_name=form.last_name.data,
-            phone=form.phone.data,
             email=form.email.data,
             confirmation=False,
             password=form.password.data,

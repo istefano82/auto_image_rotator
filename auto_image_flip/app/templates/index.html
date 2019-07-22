@@ -35,9 +35,9 @@ method = "POST"
 </div>
   <div class="ui tiny images" id="selectedFiles"></div>
 {% else %}
-  <center><h2><font color='white'>Log in to be able to upload mutiple
-      images for rotation conversion.</font></h2></center>
-  <center><h2><font color='white'>Upload your single image below</font></h2></center>
+  <p><center><h2><font color='white'>Log in to be able to upload mutiple
+      images for rotation conversion.</font></h2></center></p>
+  <p><center><h2><font color='white'>Upload your single image below</font></h2></center></p>
   <form class="ui form" id="imageUploadForm"  action = {{ url_for('upload_file') }} method = "POST"
          enctype = "multipart/form-data">
       <input type="file" multiple="" (change)="fileEvent($event)"
