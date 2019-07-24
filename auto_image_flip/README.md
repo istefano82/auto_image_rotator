@@ -84,6 +84,32 @@ I have included a working Gmail account to confirm user email addresses and rese
 
 Read [this](http://flask.pocoo.org/docs/0.10/config/) for information on the possible configuration options.
 
+## Export Deep learning model for TF serving
+
+### Create model docker container
+* Navigate to /model_serve_docker
+* Update tf_serving_build_model.py to build model and load saved weights
+* Generate TF serving files and Docker file run `% python tf_serving_build_model
+.py`
+* generate model docker container - `docker build -t tf-serving-heroku-1.11 .`
+### Test docker locally
+* `docker run -p 8501:8501 -e PORT=8501 -t tf-serving-heroku-1.11`
+* Update test client `test_model_docker.py` Model URL for local test 
+`full_url = "localhost:8501/v1/models/tf_serving_keras_mobilenet/versions/1
+:predict"
+* Run test client - `python test_model_docker.py`
+
+### Export TF model to Heroku
+* Login to container registry `% heroku container:login`
+* OPtional if not alread done
+  * heroku create {APP NAME} - i.e `heroku create image-rotation-detector`
+* Push docker image to Heroku
+  * `heroku  container:push web -a ${YOUR_APP_NAME}` - i.e `heroku  container:push web -a image-rotation-detector`
+  * `heroku container:release web -a ${YOUR_APP_NAME}` - i.e `heroku container:release web -a ${image-rotation-detector`
+* Test app with REST Request
+  * Update test client `test_model_docker.py` Model URL for local test 
+`full_url = "https://image-rotation-detector.herokuapp.com/v1/models/tf_serving_keras_mobilenet/versions/1:predict""
+
 ## License
 
 The MIT License (MIT). Please see the [license file](LICENSE) for more information.
