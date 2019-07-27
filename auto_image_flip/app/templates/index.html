@@ -40,7 +40,7 @@ method = "POST"
   <p><center><h2><font color='white'>Upload your single image below</font></h2></center></p>
   <form class="ui form" id="imageUploadForm"  action = {{ url_for('upload_file') }} method = "POST"
          enctype = "multipart/form-data">
-      <input type="file" multiple="" (change)="fileEvent($event)"
+      <input type="file" (change)="fileEvent($event)"
          class="inputfile" id="embedpollfileinput" name="file"/>
       <label for="embedpollfileinput"
              class="ui huge teal center floated button">
@@ -63,7 +63,6 @@ method = "POST"
 
 <script>
 	var selDiv = "";
-	var storedFiles = [];
 
 	document.addEventListener("DOMContentLoaded", init, false);
 
@@ -76,6 +75,7 @@ method = "POST"
 	}
 
 	function handleFileSelect(e) {
+        selDiv.innerHTML = ""
         var html = "<hr>";
         selDiv.innerHTML += html;
 		var files = e.target.files;
@@ -85,7 +85,6 @@ method = "POST"
 			if(!f.type.match("image.*")) {
 				return;
 			}
-			storedFiles.push(f);
 
 			var reader = new FileReader();
 			reader.onload = function (e) {

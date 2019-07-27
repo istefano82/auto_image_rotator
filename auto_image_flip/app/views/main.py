@@ -11,7 +11,7 @@ import requests
 from PIL import Image
 from app import app
 from flask import render_template, jsonify, request, send_file, \
-    Response, redirect, url_for, session
+    Response, redirect, url_for, session, flash
 from skimage.transform import resize
 from werkzeug import secure_filename
 
@@ -70,20 +70,40 @@ def upload_files():
     session['image_flips'] = defaultdict(int)
     uploaded_files = request.files.getlist("file[]")
     for file in uploaded_files:
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(path)
-            predict_rotate(path)
-            session['image_flips'][filename]
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(url_for('index'))
+        if not allowed_file(file.filename):
+            flash('Filetype is not any of supported '
+                  'formats{}'.format(app.config['ALLOWED_EXTENSIONS']))
+            return redirect(url_for('index'))
+        filename = secure_filename(file.filename)
+        path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(path)
+        predict_rotate(path)
+        session['image_flips'][filename]
     return render_template('uploaded.html', images=session['image_flips'].keys())
 
 
 @app.route('/uploaded', methods=['POST'])
 def upload_file():
+    if 'file' not in request.files:
+        flash('No file part')
+        return redirect(request.url)
+    file = request.files['file']
+    # if user does not select file, browser also
+    # submit an empty part without filename
+    if file.filename == '':
+        flash('No selected file')
+        return redirect(url_for('index'))
+    if not allowed_file(file.filename):
+        flash('Filetype is not any of supported '
+                  'formats{}'.format(app.config['ALLOWED_EXTENSIONS']))
+        return redirect(url_for('index'))
     session['image_flips'] = defaultdict(int)
     f = request.files['file']
-    path = os.path.join(app.config['UPLOAD_FOLDER'], f.filename)
+    filename = secure_filename(f.filename)
+    path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
     f.save(path)
     predict_rotate(path)
     img_name = os.path.split(path)[1]
