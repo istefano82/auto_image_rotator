@@ -6,9 +6,9 @@
 
 {% block content %}
 
-	<div class="ui form-user center raised very padded text container segment">
+	<div class="ui compact segment">
 		<form class="ui form" action="/user/signin" method="post">
-			<h4 class="ui dividing header">Login</h4>
+			<center><h4 class="ui dividing header">Login</h4></center>
 	    	{{ m.render_field(form.email) }}
 	    	{{ m.render_field(form.password) }}
 		  	{{ form.csrf_token }}
