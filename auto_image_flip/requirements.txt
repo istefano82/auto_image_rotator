@@ -19,7 +19,7 @@ Flask-SQLAlchemy==2.1
 Flask-WTF==0.12
 gast==0.2.2
 grpcio==1.20.1
-gunicorn==19.4.5
+gunicorn==19.5.0
 idna==2.8
 imageio==2.5.0
 ipython==7.5.0
