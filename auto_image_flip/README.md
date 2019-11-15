@@ -95,8 +95,7 @@ Read [this](http://flask.pocoo.org/docs/0.10/config/) for information on the pos
 ### Test docker locally
 * `docker run -p 8501:8501 -e PORT=8501 -t tf-serving-heroku-1.11`
 * Update test client `test_model_docker.py` Model URL for local test 
-`full_url = "localhost:8501/v1/models/tf_serving_keras_mobilenet/versions/1
-:predict"
+`full_url = "http://0.0.0.0:8501/v1/models/tf_serving_keras_mobilenet/versions/1:predict"
 * Run test client - `python test_model_docker.py`
 
 ### Export TF model to Heroku

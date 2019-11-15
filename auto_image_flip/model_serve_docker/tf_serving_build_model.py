@@ -1,3 +1,5 @@
+# Requires Tensorflow 1.13
+
 import tensorflow as tf
 
 from keras.layers import Dense,GlobalAveragePooling2D, Dropout

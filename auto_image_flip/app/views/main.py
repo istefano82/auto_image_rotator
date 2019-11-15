@@ -132,6 +132,25 @@ def predict_rotate(path):
     highest_index = np.argmax(response['predictions'])
     _rotate_image_from_label(path, PREDICTION_LABELS[highest_index])
 
+def predict_rotate_rest(path):
+    """Preprocess image before sending to model for prediction and return predicted rotation label.
+
+    :param path: Path to image file for prediction.
+    :return: None
+    """
+    image = Image.open(path).convert('L')
+    image.thumbnail((TARGET_IMAGE_SIZE, TARGET_IMAGE_SIZE))
+    image = preprocess_image(np.array(image))
+    url = app.config['HEROKU_MODEL_APP_URL']
+    full_url = "{}/v1/models/tf_serving_keras_mobilenet/versions/1:predict".format(
+        url)
+    data = {"signature_name": "prediction",
+            "instances": [{"images": image.tolist()}]}
+    data = json.dumps(data)
+    response = requests.post(full_url, data=data)
+    response = response.json()
+    highest_index = np.argmax(response['predictions'])
+    return PREDICTION_LABELS[highest_index]
 
 @app.route('/download_files/',  methods=['GET'])
 def download_files():
@@ -154,6 +173,15 @@ def download_files():
                      mimetype='zip',
                      attachment_filename='flipped_images.zip',
                      as_attachment=True)
+
+
+@app.route('/upload_rest', methods=['POST'])
+def upload_file_rest():
+    f = request.files['file']
+    filename = secure_filename(f.filename)
+    path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+    f.save(path)
+    return predict_rotate_rest(path)
 
 
 @app.route('/')
